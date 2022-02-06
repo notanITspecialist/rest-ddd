@@ -1,6 +1,13 @@
 package dependencies
 
-import "rest-ddd/pkg/server"
+import (
+	"os"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
+	"rest-ddd/pkg/server"
+)
 
 type (
 	Dependencies interface {
@@ -8,6 +15,8 @@ type (
 	}
 
 	dependencies struct {
+		log *zap.Logger
+
 		appServer server.Server
 	}
 )
@@ -17,11 +26,25 @@ func NewDependencies() Dependencies {
 }
 
 func newDependencies() *dependencies {
-	return &dependencies{}
+	encoderCfg := zap.NewProductionEncoderConfig()
+	encoderCfg.TimeKey = "timestamp"
+	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+	logger := zap.New(
+		zapcore.NewCore(
+			zapcore.NewJSONEncoder(encoderCfg),
+			zapcore.Lock(os.Stdout),
+			zap.NewAtomicLevel(),
+		),
+	).Named("dependencies")
+
+	return &dependencies{
+		log: logger,
+	}
 }
 
 func (d *dependencies) AppServer() server.Server {
 	if d.appServer == nil {
+		d.log.Info("Initialize [dependencies.AppServer]")
 		// initialization server.NewAppServer
 	}
 	return d.appServer
