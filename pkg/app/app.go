@@ -23,6 +23,7 @@ func newApplications(deps dependencies.Dependencies) *application {
 }
 
 func (app *application) Run() {
-	// there will be dependencies initialization
-	// app.AppServer()
+	deps := app.deps
+
+	deps.AppServer()
 }
