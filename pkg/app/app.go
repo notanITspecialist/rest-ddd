@@ -1,23 +1,28 @@
 package app
 
+import "rest-ddd/pkg/dependencies"
+
 type (
 	Application interface {
 		Run()
 	}
 
 	application struct {
-		// there will be dependencies
+		deps dependencies.Dependencies
 	}
 )
 
 func NewApplications() Application {
-	return newApplications()
+	return newApplications(dependencies.NewDependencies())
 }
 
-func newApplications() *application {
-	return &application{}
+func newApplications(deps dependencies.Dependencies) *application {
+	return &application{
+		deps: deps,
+	}
 }
 
-func (application) Run() {
+func (app *application) Run() {
 	// there will be dependencies initialization
+	// app.AppServer()
 }
