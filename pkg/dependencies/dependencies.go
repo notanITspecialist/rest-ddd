@@ -44,8 +44,14 @@ func newDependencies() *dependencies {
 
 func (d *dependencies) AppServer() server.Server {
 	if d.appServer == nil {
-		d.log.Info("Initialize [dependencies.AppServer]")
-		// initialization server.NewAppServer
+		msg := "Initialize [dependencies.AppServer]"
+		d.log.Info(msg)
+
+		appServer, err := server.NewAppServer(d.log)
+		if err != nil {
+			d.log.Panic(msg, zap.Error(err))
+		}
+		d.appServer = appServer
 	}
 	return d.appServer
 }

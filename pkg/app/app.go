@@ -25,5 +25,6 @@ func newApplications(deps dependencies.Dependencies) *application {
 func (app *application) Run() {
 	deps := app.deps
 
-	deps.AppServer()
+	appServer := deps.AppServer()
+	appServer.Start()
 }
