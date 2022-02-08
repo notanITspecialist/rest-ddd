@@ -6,18 +6,23 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"rest-ddd/pkg/endpoints"
 	"rest-ddd/pkg/server"
 )
 
 type (
 	Dependencies interface {
 		AppServer() server.Server
+
+		UserEndpoints() endpoints.UserEndpoints
 	}
 
 	dependencies struct {
 		log *zap.Logger
 
 		appServer server.Server
+
+		userEndpoints endpoints.UserEndpoints
 	}
 )
 
@@ -47,11 +52,22 @@ func (d *dependencies) AppServer() server.Server {
 		msg := "Initialize [dependencies.AppServer]"
 		d.log.Info(msg)
 
-		appServer, err := server.NewAppServer(d.log)
+		appServer, err := server.NewAppServer(
+			d.log,
+			d.UserEndpoints(),
+		)
 		if err != nil {
 			d.log.Panic(msg, zap.Error(err))
 		}
 		d.appServer = appServer
 	}
 	return d.appServer
+}
+
+func (d *dependencies) UserEndpoints() endpoints.UserEndpoints {
+	if d.userEndpoints == nil {
+		d.userEndpoints = endpoints.NewUserEndpoints(d.log)
+		d.log.Info("initialize user endpoints dependency")
+	}
+	return d.userEndpoints
 }
