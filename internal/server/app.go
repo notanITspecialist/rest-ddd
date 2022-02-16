@@ -12,14 +12,25 @@ import (
 	"rest-ddd/internal/endpoints"
 )
 
-type appServer struct {
-	log      *zap.Logger
-	listener net.Listener
-	server   *http.Server
-	cfg      config.Server
-
-	userEndpoints endpoints.UserEndpoints
+var Paths = map[string]string{
+	"GetUsers":   "/api/v1/user",
+	"CreateUser": "/api/v1/user",
 }
+
+type (
+	appServer struct {
+		log      *zap.Logger
+		listener net.Listener
+		server   *http.Server
+		cfg      config.Server
+
+		userEndpoints endpoints.UserEndpoints
+	}
+
+	Server interface {
+		Start()
+	}
+)
 
 func NewAppServer(
 	log *zap.Logger,
@@ -59,6 +70,11 @@ func newAppServer(
 	server.initRoutes(router)
 
 	return server
+}
+
+func (s *appServer) initRoutes(r *mux.Router) {
+	r.HandleFunc(Paths["GetUsers"], s.userEndpoints.GetUsers).Methods(http.MethodGet)
+	r.HandleFunc(Paths["CreateUser"], s.userEndpoints.CreateUser).Methods(http.MethodPost)
 }
 
 func (s *appServer) Start() {
