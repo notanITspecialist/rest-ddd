@@ -6,10 +6,10 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"rest-ddd/pkg/config"
-	"rest-ddd/pkg/endpoints"
-	"rest-ddd/pkg/server"
-	"rest-ddd/pkg/service"
+	"rest-ddd/internal/config"
+	"rest-ddd/internal/endpoints"
+	"rest-ddd/internal/server"
+	"rest-ddd/internal/service"
 )
 
 type (

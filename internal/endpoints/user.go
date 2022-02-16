@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"rest-ddd/pkg/service"
+	"rest-ddd/internal/service"
 )
 
 type (

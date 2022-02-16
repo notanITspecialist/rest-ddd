@@ -1,6 +1,6 @@
 package main
 
-import "rest-ddd/pkg/app"
+import "rest-ddd/internal/app"
 
 func main() {
 	application := app.NewApplications()

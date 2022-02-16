@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"rest-ddd/pkg/repository"
+	"rest-ddd/internal/repository"
 )
 
 type (

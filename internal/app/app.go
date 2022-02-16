@@ -1,6 +1,6 @@
 package app
 
-import "rest-ddd/pkg/dependencies"
+import "rest-ddd/internal/dependencies"
 
 type (
 	Application interface {
