@@ -1,8 +1,12 @@
 package endpoints
 
 import (
-	"go.uber.org/zap"
+	"encoding/json"
 	"net/http"
+
+	"go.uber.org/zap"
+
+	"rest-ddd/pkg/service"
 )
 
 type (
@@ -12,28 +16,47 @@ type (
 	}
 
 	userHandler struct {
-		log *zap.Logger
+		log         *zap.Logger
+		userService service.UserService
 	}
 )
 
 func NewUserEndpoints(
 	log *zap.Logger,
+	userService service.UserService,
 ) UserEndpoints {
-	return newUserEndpoints(log)
+	return newUserEndpoints(log, userService)
 }
 
 func newUserEndpoints(
 	log *zap.Logger,
+	userService service.UserService,
 ) *userHandler {
 	return &userHandler{
-		log: log.With(zap.String("module", "user_endpoints")),
+		log:         log.With(zap.String("module", "user_endpoints")),
+		userService: userService,
 	}
 }
 
 func (h *userHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	h.log.Info("Get users call")
+
+	users, err := h.userService.GetAllUsers(r.Context())
+	if err != nil {
+		h.log.Error("Error while call [service.UserService.GetAllUsers]", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(users)
+	if err != nil {
+		h.log.Error("Error while encode [endpoints.UserEndpoints.GetUsers]", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	h.log.Info("Create user call")
+	w.WriteHeader(http.StatusOK)
 }

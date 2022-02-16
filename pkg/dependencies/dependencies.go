@@ -9,6 +9,7 @@ import (
 	"rest-ddd/pkg/config"
 	"rest-ddd/pkg/endpoints"
 	"rest-ddd/pkg/server"
+	"rest-ddd/pkg/service"
 )
 
 type (
@@ -16,6 +17,8 @@ type (
 		AppServer() server.Server
 
 		UserEndpoints() endpoints.UserEndpoints
+
+		UserService() service.UserService
 	}
 
 	dependencies struct {
@@ -25,6 +28,8 @@ type (
 		appServer server.Server
 
 		userEndpoints endpoints.UserEndpoints
+
+		userService service.UserService
 	}
 )
 
@@ -84,8 +89,17 @@ func (d *dependencies) AppServer() server.Server {
 
 func (d *dependencies) UserEndpoints() endpoints.UserEndpoints {
 	if d.userEndpoints == nil {
-		d.userEndpoints = endpoints.NewUserEndpoints(d.log)
-		d.log.Info("initialize user endpoints dependency")
+		d.userEndpoints = endpoints.NewUserEndpoints(d.log, d.UserService())
+		d.log.Info("Initialize [dependencies.UserEndpoints]")
 	}
 	return d.userEndpoints
+}
+
+func (d *dependencies) UserService() service.UserService {
+	if d.userService == nil {
+		msg := "Initialize [dependencies.UserService]"
+		d.userService = service.NewUserService()
+		d.log.Info(msg)
+	}
+	return d.userService
 }
