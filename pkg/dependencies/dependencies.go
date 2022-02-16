@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"rest-ddd/pkg/config"
 	"rest-ddd/pkg/endpoints"
 	"rest-ddd/pkg/server"
 )
@@ -18,7 +19,8 @@ type (
 	}
 
 	dependencies struct {
-		log *zap.Logger
+		log    *zap.Logger
+		config *config.Config
 
 		appServer server.Server
 
@@ -47,6 +49,21 @@ func newDependencies() *dependencies {
 	}
 }
 
+func (d *dependencies) Config() *config.Config {
+	if d.config == nil {
+		msg := "Initialize [dependencies.Config]"
+
+		cfg, err := config.NewConfig()
+		if err != nil {
+			d.log.Panic(msg, zap.Error(err))
+		}
+		d.log.Info(msg)
+
+		d.config = cfg
+	}
+	return d.config
+}
+
 func (d *dependencies) AppServer() server.Server {
 	if d.appServer == nil {
 		msg := "Initialize [dependencies.AppServer]"
@@ -54,6 +71,7 @@ func (d *dependencies) AppServer() server.Server {
 
 		appServer, err := server.NewAppServer(
 			d.log,
+			d.Config().AppServer,
 			d.UserEndpoints(),
 		)
 		if err != nil {

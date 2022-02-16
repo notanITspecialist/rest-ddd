@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 
+	"rest-ddd/pkg/config"
 	"rest-ddd/pkg/endpoints"
 )
 
@@ -15,21 +16,24 @@ type appServer struct {
 	log      *zap.Logger
 	listener net.Listener
 	server   *http.Server
+	cfg      config.Server
 
 	userEndpoints endpoints.UserEndpoints
 }
 
 func NewAppServer(
 	log *zap.Logger,
+	cfg config.Server,
 	userEndpoints endpoints.UserEndpoints,
 ) (Server, error) {
-	port := "8000"
+	port := cfg.Port
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%v", port))
 	if err != nil {
 		return nil, fmt.Errorf("cannot listen app port: %w", port)
 	}
 	server := newAppServer(
 		log,
+		cfg,
 		listener,
 		userEndpoints,
 	)
@@ -38,6 +42,7 @@ func NewAppServer(
 
 func newAppServer(
 	log *zap.Logger,
+	cfg config.Server,
 	listener net.Listener,
 	userEndpoints endpoints.UserEndpoints,
 ) *appServer {
@@ -45,6 +50,7 @@ func newAppServer(
 
 	server := &appServer{
 		log:      log,
+		cfg:      cfg,
 		listener: listener,
 		server:   &http.Server{Handler: router},
 
@@ -56,7 +62,7 @@ func newAppServer(
 }
 
 func (s *appServer) Start() {
-	s.log.Info("Start app server :8000")
+	s.log.Info(fmt.Sprintf("Start app server :%v", s.cfg.Port))
 
 	err := s.server.Serve(s.listener)
 	if err != nil {
