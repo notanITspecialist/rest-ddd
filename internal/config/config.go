@@ -17,7 +17,7 @@ func NewConfig() (*Config, error) {
 
 	v.SetDefault("server.port", 8000)
 
-	v.SetDefault("postgresql.dsn", "postgresql://root:password@postgres/rest-ddd")
+	v.SetDefault("postgresql.dsn", "postgres://root:password@127.0.0.1:5432/rest-ddd")
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()

@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:12
+    container_name: rest-ddd-postgres
+    restart: on-failure
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=rest-ddd
+    ports:
+      - "5432:5432"
