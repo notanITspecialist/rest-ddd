@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	AppServer Server `mapstructure:"server"`
+	AppServer  Server     `mapstructure:"server"`
+	Postgresql Postgresql `mapstructure:"postgresql"`
 }
 
 func NewConfig() (*Config, error) {
@@ -15,6 +16,8 @@ func NewConfig() (*Config, error) {
 	v := viper.New()
 
 	v.SetDefault("server.port", 8000)
+
+	v.SetDefault("postgresql.dsn", "postgresql://root:password@postgres/rest-ddd")
 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
