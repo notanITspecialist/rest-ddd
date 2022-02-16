@@ -7,7 +7,9 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"rest-ddd/internal/config"
+	"rest-ddd/internal/db"
 	"rest-ddd/internal/endpoints"
+	"rest-ddd/internal/repository"
 	"rest-ddd/internal/server"
 	"rest-ddd/internal/service"
 )
@@ -15,10 +17,6 @@ import (
 type (
 	Dependencies interface {
 		AppServer() server.Server
-
-		UserEndpoints() endpoints.UserEndpoints
-
-		UserService() service.UserService
 	}
 
 	dependencies struct {
@@ -27,9 +25,13 @@ type (
 
 		appServer server.Server
 
+		psqlClient *db.PostgresqlClient
+
 		userEndpoints endpoints.UserEndpoints
 
 		userService service.UserService
+
+		userRepository repository.UserRepository
 	}
 )
 
@@ -87,6 +89,19 @@ func (d *dependencies) AppServer() server.Server {
 	return d.appServer
 }
 
+func (d *dependencies) PostgresqlClient() *db.PostgresqlClient {
+	if d.psqlClient == nil {
+		msg := "initialize [dependencies.PostgresqlClient]"
+		psqlClient, err := db.NewPostgresClient(d.Config().Postgresql)
+		if err != nil {
+			d.log.Panic(msg, zap.Error(err))
+		}
+
+		d.psqlClient = psqlClient
+	}
+	return d.psqlClient
+}
+
 func (d *dependencies) UserEndpoints() endpoints.UserEndpoints {
 	if d.userEndpoints == nil {
 		d.userEndpoints = endpoints.NewUserEndpoints(d.log, d.UserService())
@@ -98,8 +113,17 @@ func (d *dependencies) UserEndpoints() endpoints.UserEndpoints {
 func (d *dependencies) UserService() service.UserService {
 	if d.userService == nil {
 		msg := "Initialize [dependencies.UserService]"
-		d.userService = service.NewUserService()
+		d.userService = service.NewUserService(d.UserRepository())
 		d.log.Info(msg)
 	}
 	return d.userService
+}
+
+func (d *dependencies) UserRepository() repository.UserRepository {
+	if d.userRepository == nil {
+		msg := "Initialize [dependencies.UserRepository]"
+		d.userRepository = repository.NewPGUserRepository(d.PostgresqlClient())
+		d.log.Info(msg)
+	}
+	return d.userRepository
 }

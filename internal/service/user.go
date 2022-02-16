@@ -10,15 +10,19 @@ type (
 		GetAllUsers(ctx context.Context) ([]repository.User, error)
 	}
 
-	userService struct{}
+	userService struct {
+		repo repository.UserRepository
+	}
 )
 
-func NewUserService() UserService {
-	return newUserService()
+func NewUserService(repo repository.UserRepository) UserService {
+	return newUserService(repo)
 }
 
-func newUserService() *userService {
-	return &userService{}
+func newUserService(repo repository.UserRepository) *userService {
+	return &userService{
+		repo: repo,
+	}
 }
 
 func (h *userService) GetAllUsers(ctx context.Context) ([]repository.User, error) {
