@@ -2,46 +2,41 @@ package repository
 
 import (
 	"context"
+	"fmt"
+
+	"go.uber.org/zap"
 
 	"rest-ddd/internal/db"
 )
 
 type (
 	pgUserRepository struct {
+		log *zap.Logger
+
 		client *db.PostgresqlClient
 		table  string
 	}
 )
 
-func NewPGUserRepository(client *db.PostgresqlClient) UserRepository {
-	return newPGUserRepository(client)
+func NewPGUserRepository(log *zap.Logger, client *db.PostgresqlClient) UserRepository {
+	return newPGUserRepository(log, client)
 }
 
-func newPGUserRepository(client *db.PostgresqlClient) *pgUserRepository {
+func newPGUserRepository(log *zap.Logger, client *db.PostgresqlClient) *pgUserRepository {
 	return &pgUserRepository{
+		log:    log,
 		client: client,
-		table:  "user",
+		table:  "users",
 	}
 }
 
-func (r *pgUserRepository) GetAllUsers(context.Context) ([]User, error) {
-	fixtureData := []User{
-		{
-			Id:        "1",
-			FirstName: "John",
-			LastName:  "Doe",
-		},
-		{
-			Id:        "2",
-			FirstName: "John",
-			LastName:  "Doe",
-		},
-		{
-			Id:        "3",
-			FirstName: "John",
-			LastName:  "Doe",
-		},
+func (r *pgUserRepository) GetAllUsers(ctx context.Context) ([]User, error) {
+	var users []User
+	query := fmt.Sprintf(`SELECT * FROM %v`, r.table)
+	err := r.client.DB.SelectContext(ctx, &users, query)
+	if err != nil {
+		r.log.Error(fmt.Sprintf("error while select from %v table", r.table), zap.Error(err))
 	}
 
-	return fixtureData, nil
+	return users, err
 }

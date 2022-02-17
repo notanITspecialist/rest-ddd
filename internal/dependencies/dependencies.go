@@ -122,7 +122,7 @@ func (d *dependencies) UserService() service.UserService {
 func (d *dependencies) UserRepository() repository.UserRepository {
 	if d.userRepository == nil {
 		msg := "Initialize [dependencies.UserRepository]"
-		d.userRepository = repository.NewPGUserRepository(d.PostgresqlClient())
+		d.userRepository = repository.NewPGUserRepository(d.log, d.PostgresqlClient())
 		d.log.Info(msg)
 	}
 	return d.userRepository

@@ -4,12 +4,12 @@ import "context"
 
 type (
 	UserRepository interface {
-		GetAllUsers(context.Context) ([]User, error)
+		GetAllUsers(ctx context.Context) ([]User, error)
 	}
 
 	User struct {
-		Id        string `json:"id"`
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
+		Id        string `json:"id" db:"id"`
+		FirstName string `json:"first_name" db:"first_name"`
+		LastName  string `json:"last_name"  db:"last_name"`
 	}
 )

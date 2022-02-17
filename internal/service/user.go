@@ -26,26 +26,10 @@ func newUserService(repo repository.UserRepository) *userService {
 }
 
 func (h *userService) GetAllUsers(ctx context.Context) ([]repository.User, error) {
-
-	// There will be call a repository layer
-
-	fixtureData := []repository.User{
-		{
-			Id:        "1",
-			FirstName: "John",
-			LastName:  "Doe",
-		},
-		{
-			Id:        "2",
-			FirstName: "John",
-			LastName:  "Doe",
-		},
-		{
-			Id:        "3",
-			FirstName: "John",
-			LastName:  "Doe",
-		},
+	users, err := h.repo.GetAllUsers(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return fixtureData, nil
+	return users, nil
 }
