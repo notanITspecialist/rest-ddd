@@ -10,6 +10,10 @@ import (
 )
 
 type (
+	UserRepository interface {
+		GetAllUsers(ctx context.Context) ([]User, error)
+	}
+
 	pgUserRepository struct {
 		log *zap.Logger
 

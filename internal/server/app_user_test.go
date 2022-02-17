@@ -48,6 +48,10 @@ func (s *UserEndpointsSuite) SetupTest() {
 	s.app = newAppServer(zap.NewNop(), cfg, s.userEndpoints, nil)
 }
 
+func (s *UserEndpointsSuite) TearDownTest() {
+	s.ctrl.Finish()
+}
+
 func (s *UserEndpointsSuite) TestMockGetAllUsersEndpoint() {
 	req, _ := http.NewRequest(http.MethodGet, Paths["GetUsers"], nil)
 	res := httptest.NewRecorder()
