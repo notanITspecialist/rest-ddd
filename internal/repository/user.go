@@ -12,6 +12,7 @@ import (
 type (
 	UserRepository interface {
 		GetAllUsers(ctx context.Context) ([]User, error)
+		CreateUser(ctx context.Context, data User) error
 	}
 
 	pgUserRepository struct {
@@ -43,4 +44,14 @@ func (r *pgUserRepository) GetAllUsers(ctx context.Context) ([]User, error) {
 	}
 
 	return users, err
+}
+
+func (r *pgUserRepository) CreateUser(ctx context.Context, data User) error {
+	query := fmt.Sprintf(`INSERT INTO %v(first_name, last_name) VALUES (%v, %v)`, r.table, data.FirstName, data.LastName)
+	_, err := r.client.DB.QueryxContext(ctx, query)
+	if err != nil {
+		r.log.Error(fmt.Sprintf("error while insert into %v table", r.table), zap.Error(err))
+	}
+
+	return err
 }

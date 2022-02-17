@@ -8,6 +8,12 @@ import (
 type (
 	UserService interface {
 		GetAllUsers(ctx context.Context) ([]repository.User, error)
+		CreateUser(ctx context.Context, body UserCreateData) error
+	}
+
+	UserCreateData struct {
+		FirstName string `json:"first_name" validate:"min=2"`
+		LastName  string `json:"last_name"  validate:"min=2"`
 	}
 
 	userService struct {
@@ -32,4 +38,18 @@ func (h *userService) GetAllUsers(ctx context.Context) ([]repository.User, error
 	}
 
 	return users, nil
+}
+
+func (h *userService) CreateUser(ctx context.Context, body UserCreateData) error {
+	userCreateData := repository.User{
+		FirstName: body.FirstName,
+		LastName:  body.LastName,
+	}
+
+	err := h.repo.CreateUser(ctx, userCreateData)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

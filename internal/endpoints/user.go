@@ -2,9 +2,11 @@ package endpoints
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"go.uber.org/zap"
+	"gopkg.in/validator.v2"
 
 	"rest-ddd/internal/service"
 )
@@ -58,5 +60,36 @@ func (h *userHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string][]string{
+			"errors": {"Error while try to read body " + err.Error()},
+		})
+		return
+	}
+
+	var rBody service.UserCreateData
+	err = json.Unmarshal(body, &rBody)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string][]string{
+			"errors": {"Error while try to serialize body " + err.Error()},
+		})
+		return
+	}
+	if err = validator.Validate(rBody); err != nil {
+		json.NewEncoder(w).Encode(map[string][]string{
+			"errors": {"Error while try to serialize body " + err.Error()},
+		})
+		return
+	}
+
+	err = h.userService.CreateUser(r.Context(), rBody)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
