@@ -61,3 +61,36 @@ func (s *UserServiceSuite) TestGetAllUsersError() {
 	s.Error(err)
 	s.Equal(expectedData, actual)
 }
+
+func (s *UserServiceSuite) TestCreateUserSuccess() {
+	ctx := context.Background()
+	user := repository.User{
+		FirstName: "John",
+		LastName:  "Doe",
+	}
+	body := UserCreateData{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+	}
+	s.repo.EXPECT().CreateUser(ctx, user).Return(nil)
+
+	err := s.service.CreateUser(ctx, body)
+	s.NoError(err)
+}
+
+func (s *UserServiceSuite) TestCreateUserError() {
+	ctx := context.Background()
+	user := repository.User{
+		FirstName: "John",
+		LastName:  "Doe",
+	}
+	body := UserCreateData{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+	}
+	expectedError := errors.New("some error")
+	s.repo.EXPECT().CreateUser(ctx, user).Return(expectedError)
+
+	err := s.service.CreateUser(ctx, body)
+	s.Error(err)
+}
