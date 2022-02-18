@@ -14,6 +14,7 @@ type (
 	UserCreateData struct {
 		FirstName string `json:"first_name" validate:"min=2"`
 		LastName  string `json:"last_name"  validate:"min=2"`
+		Mobile    string `json:"mobile"     validate:"min=10"`
 	}
 
 	userService struct {
@@ -44,6 +45,7 @@ func (h *userService) CreateUser(ctx context.Context, body UserCreateData) error
 	userCreateData := repository.User{
 		FirstName: body.FirstName,
 		LastName:  body.LastName,
+		Mobile:    &body.Mobile,
 	}
 
 	err := h.repo.CreateUser(ctx, userCreateData)
