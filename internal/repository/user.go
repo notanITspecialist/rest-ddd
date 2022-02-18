@@ -36,7 +36,7 @@ func newPGUserRepository(log *zap.Logger, client *db.PostgresqlClient) *pgUserRe
 }
 
 func (r *pgUserRepository) GetAllUsers(ctx context.Context) ([]User, error) {
-	var users []User
+	users := []User{}
 	query := fmt.Sprintf(`SELECT users.id, first_name, last_name, mobile FROM %v LEFT OUTER JOIN profiles ON (profiles.userId = users.id)`, r.table)
 	err := r.client.DB.SelectContext(ctx, &users, query)
 	if err != nil {
@@ -47,6 +47,8 @@ func (r *pgUserRepository) GetAllUsers(ctx context.Context) ([]User, error) {
 }
 
 func (r *pgUserRepository) CreateUser(ctx context.Context, data User) error {
+	// TODO: it's better to do it through a transaction
+
 	query := `INSERT INTO users("first_name", "last_name") VALUES ($1, $2) RETURNING id`
 	stmt, err := r.client.DB.Prepare(query)
 	defer stmt.Close()

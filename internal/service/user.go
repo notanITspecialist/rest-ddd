@@ -45,7 +45,7 @@ func (h *userService) CreateUser(ctx context.Context, body UserCreateData) error
 	userCreateData := repository.User{
 		FirstName: body.FirstName,
 		LastName:  body.LastName,
-		Mobile:    &body.Mobile,
+		Mobile:    body.Mobile,
 	}
 
 	err := h.repo.CreateUser(ctx, userCreateData)
