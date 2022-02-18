@@ -1,11 +1,10 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"rest-ddd/internal/endpoints"
-	"rest-ddd/internal/repository"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -13,8 +12,11 @@ import (
 	"go.uber.org/zap"
 
 	"rest-ddd/internal/config"
+	"rest-ddd/internal/endpoints"
 	mockEndpoints "rest-ddd/internal/mocks/endpoints"
 	mockService "rest-ddd/internal/mocks/service"
+	"rest-ddd/internal/repository"
+	"rest-ddd/internal/service"
 )
 
 type UserEndpointsSuite struct {
@@ -84,5 +86,55 @@ func (s *UserEndpointsSuite) TestGetAllUsersEndpoint() {
 		s.NoError(err)
 		s.Equal(http.StatusOK, res.Code)
 		s.Equal(expectedData, mapBody)
+	})
+}
+
+func (s *UserEndpointsSuite) TestMockCreateUserEndpoint() {
+	req, _ := http.NewRequest(http.MethodPost, Paths["CreateUser"], nil)
+	res := httptest.NewRecorder()
+
+	s.mockUserEndpoints.EXPECT().CreateUser(res, gomock.Any())
+	s.mockApp.server.Handler.ServeHTTP(res, req)
+
+	s.Equal(http.StatusOK, res.Code)
+}
+
+func (s *UserEndpointsSuite) TestCreateUserEndpoint() {
+	path := Paths["CreateUser"]
+	method := http.MethodPost
+
+	s.Run("CreateUser call success", func() {
+		body := service.UserCreateData{
+			FirstName: "John",
+			LastName:  "Dow",
+		}
+		jsonBody, err := json.Marshal(body)
+		s.NoError(err)
+
+		endpointUrl := path
+		req, _ := http.NewRequest(method, endpointUrl, bytes.NewBuffer(jsonBody))
+		res := httptest.NewRecorder()
+
+		s.mockUserService.EXPECT().CreateUser(gomock.Any(), body).Return(nil)
+		s.app.server.Handler.ServeHTTP(res, req)
+
+		s.Equal(http.StatusOK, res.Code)
+	})
+
+	s.Run("CreateUser call validation error", func() {
+		body := service.UserCreateData{
+			FirstName: "a",
+			LastName:  "a",
+		}
+		jsonBody, err := json.Marshal(body)
+		s.NoError(err)
+
+		endpointUrl := path
+		req, _ := http.NewRequest(method, endpointUrl, bytes.NewBuffer(jsonBody))
+		res := httptest.NewRecorder()
+
+		s.app.server.Handler.ServeHTTP(res, req)
+
+		s.Equal(http.StatusBadRequest, res.Code)
 	})
 }

@@ -79,6 +79,7 @@ func (h *userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err = validator.Validate(rBody); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string][]string{
 			"errors": {"Error while try to serialize body " + err.Error()},
 		})

@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 	repository "rest-ddd/internal/repository"
+	service "rest-ddd/internal/service"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -33,6 +34,20 @@ func NewMockUserService(ctrl *gomock.Controller) *MockUserService {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
 	return m.recorder
+}
+
+// CreateUser mocks base method.
+func (m *MockUserService) CreateUser(ctx context.Context, body service.UserCreateData) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUser", ctx, body)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockUserServiceMockRecorder) CreateUser(ctx, body interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUserService)(nil).CreateUser), ctx, body)
 }
 
 // GetAllUsers mocks base method.
